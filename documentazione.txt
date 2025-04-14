@@ -1,0 +1,94 @@
+Documentazione sull'API rest
+
+Tabella CLASSI:
+
+-> ROTTA Ottenere tutte le classi
+    curl http://localhost:8080/classi/1/alunni
+        RICHIESTA
+            GET - /classi - ClassiController:index
+        RISPOSTA
+            [{"id":"1","sezione":"5A","anno":"2024"},{"id":"2","sezione":"5B","anno":"2025"}]
+
+-> ROTTA: Ottenere la classe con id specificato nell'URL
+    curl http://localhost:8080/classi/1
+        RICHIESTA
+            GET - /classi/{classe_id} - ClassiController:showById
+        RISPOSTA
+            se la classe con id = {classe_id} esiste nel database: dati della classe -> es. [{"id":"2","sezione":"5B","anno":"2025"}]
+            Se la classe specificata non esiste:                                            ["msg"=> "classe non trovata", "status" => "404: not_found_error"]
+            Se non viene indicato l'id oppure non è in formato corretto:                    ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+
+-> ROTTA: Aggiungere una classe
+    curl -X POST http://localhost:8080/classi/2 -H "Content-Type: application/json" -d '{"sezione": "5B", "anno": 2025}'
+    RICHIESTA
+        POST - /classi/{classe_id} - ClassiController:showById
+    RISPOSTA
+        Se va a buon fine:                                          ["msg"=> "classe aggiunta con successo", "status" => "200: OK"]
+        Se l'utente inserisce dati vuoti o in formato non valido :  ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+        Se i dati sono giusti ma c'è un errore nell'inserimento:    ["msg"=> "errore nella creazione della classe", "status" => "500: server_error"]
+
+-> ROTTA: Aggiornare sezione e/o anno della classe
+    curl -X PUT http://localhost:8080/classi/2 -H "Content-Type: application/json" -d '{"sezione": "5B", "anno": 2025}'
+    RICHIESTA
+        PUT - /classi/{classe_id} - ClassiController:update
+    RISPOSTA
+        Se va a buon fine:                                          ["msg"=> "aggiornamento classe effettuato con successo", "status" => "200: OK"]
+        Se l'utente inserisce dati vuoti o in formato non valido :  ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+        Se i dati sono giusti ma c'è un errore nell'aggiornamento:  ["msg"=> "aggiornamento non riuscito", "status" => "500: server_error"]
+
+-> ROTTA: Eliminare una classe con id specificato
+    curl -X DELETE http://localhost:8080/classi/4
+    RICHIESTA
+        DELETE - /classi/{classe_id} - ClassiController:delete
+    RISPOSTA
+        Se va a buon fine:                                          ["msg"=> "classe (id: $id_classe) eliminata con successo", "status" => "200: OK"]
+        Se l'utente inserisce dati vuoti o in formato non valido:   ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+        Se i dati sono giusti ma c'è un errore nell'eliminazione:   ["msg"=> "errore nella cancellazione", "status" => "500: server_error"]
+
+
+Tabella ALUNNI
+
+-> ROTTA: Ottenere tutti gli alunni di una classe
+    curl http://localhost:8080/classi/1/alunni 
+    RICHIESTA
+        GET - /classi/{id}/alunni - AlunniController:indexByClass
+    RISPOSTA
+        Se la selezione va a buon fine ->                                dati alunni -> es. [{"id":"1","nome":"Claudio","cognome":"Benve","classe_id":"1"},{"id":"2","nome":"Ivan","cognome":"Bruno","classe_id":"1"}]
+        Se la classe specificata non esiste:                                            ["msg"=> "classe non trovata", "status" => "404: not_found_error"]
+        Se non viene indicato l'id oppure non è in formato corretto:                    ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+
+-> ROTTA: Ottenere un certo alunno dato l'id
+    curl http://localhost:8080/classi/1/alunni 
+    RICHIESTA
+        GET - /classi/{id}/alunni/{id} - AlunniController:showById
+    RISPOSTA
+        Se la selezione va a buon fine ->                                dati alunni -> es. [{"id":"1","nome":"Claudio","cognome":"Benve","classe_id":"1"},{"id":"2","nome":"Ivan","cognome":"Bruno","classe_id":"1"}]
+        Se la classe o l'alunno specificato non esiste:                                     ["msg"=> "classe non trovata", "status" => "404: not_found_error"]
+        Se non viene indicato uno degli id oppure non sono in formato corretto:             ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+
+-> ROTTA: Creare un nuovo alunno
+    curl http://localhost:8080/classi/1/alunni -X POST -H "Content-Type: application/json" -d '{"nome": "Pietro", "cognome": "Nencini", "id_classe": 3}'
+    RICHIESTA
+        POST - /classi/{classe_id}/alunni - AlunniController:create
+    RISPOSTA
+        Se va a buon fine:                                          ["msg"=> "creazione avvenuta con successo", "status" => "200: OK"]
+        Se l'utente inserisce dati vuoti o in formato non valido :  ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+        Se i dati sono giusti ma c'è un errore nell'inserimento:    ["msg"=> "creazione alunno non riuscita", "status" => "500: server_error"]
+
+-> ROTTA: Aggiornare le informazioni di un alunno
+    curl http://localhost:8080/classi/1/alunni/2 -X PUT http://localhost:8080/classi/2/alunni/3 -H "Content-Type: application/json" -d '{"nome": "Niccolo", "cognome": "Mancini", "id_classe": 3}'
+    RICHIESTA
+        PUT - /classi/{classe_id}/alunni/{alunno_id} - AlunniController:update
+    RISPOSTA
+        Se va a buon fine:                                          ["msg"=> "aggiornamento classe effettuato con successo", "status" => "200: OK"]
+        Se l'utente inserisce dati vuoti o in formato non valido :  ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+        Se i dati sono giusti ma c'è un errore nell'aggiornamento:  ["msg"=> "aggiornamento non riuscito", "status" => "500: server_error"]
+
+-> ROTTA: Eliminare un alunno
+    curl http://localhost:8080/classi/1/alunni/2 -X DELETE http://localhost:8080/classi/3/alunni/3
+    RICHIESTA
+        DELETE - /classi/{classe_id}/alunni/{alunno_id} - AlunniController:delete
+    RISPOSTA
+        Se va a buon fine:                                          ["msg"=> "alunno (id: $id_alunno) eliminata con successo", "status" => "200: OK"]
+        Se l'utente inserisce dati vuoti o in formato non valido:   ["msg"=> "dati inseriti non validi", "status" => "400: bad_request"]
+        Se i dati sono giusti ma c'è un errore nell'eliminazione:   ["msg"=> "errore nella cancellazione", "status" => "500: server_error"]
