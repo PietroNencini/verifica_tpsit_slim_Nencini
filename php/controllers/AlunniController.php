@@ -5,6 +5,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class AlunniController
 {
 
+  public function index(Request $request, Response $response,$args) {
+    $db = Database::getInstance();
+    $result = $db->select("alunni");
+    $response->getBody()->write(json_encode($result));
+    return $response->withStatus(200)->withHeader("Content-Type","application/json");
+  }
+
   public function indexByClass(Request $request, Response $response,$args) {
     $db = Database::getInstance();
     $class_id = $args["classe_id"];

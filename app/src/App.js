@@ -1,23 +1,85 @@
 import logo from './logo.svg';
 import './App.css';
+import { use, useState } from 'react';
 
 function App() {
+
+  const [loading, setLoading] = useState(false);      // Variabile di stato sul caricamento
+  const [alunni, setAlunni] = useState([]);           // Variabile di stato sugli alunni mostrati nella pagina
+  const [inserting, setInserting] = useState(false);
+
+  const [nome, setNome] = useState("");
+  const [cognome, setCognome] = useState("");
+
+  function carica() {
+    setLoading(true);
+    fetch("http://localhost:8080/alunni")             // Funzione fetch --> invia una richiesta all'URL indicato
+    .then(response => response.json())                // .then(...) --> Eseguita quando termina la fetch (fino al ;)
+    .then(data => {                                   // In questo caso si aspetta di aver finito la fetch poi si codifica in json quello che si riceve e si chiama la funzione che si occupa della tabella
+      setAlunni(data)
+      setLoading(false)});
+  }
+
+  function mostraForm() {
+    setInserting(true);
+  }
+
+  function salvaAlunno() {
+    console.log(nome + " " + cognome);
+    setInserting(false);
+    setLoading(true);
+    fetch("http://localhost:8080/classi/2/alunni", {
+      method: "POST",
+      headers: {
+        "Content-Type":"application/json"  
+      },
+      body : JSON.stringify({id_classe:2, nome: nome, cognome: cognome})
+    }) 
+    .then(response => response.json())              
+    .then((data) => {
+      carica();
+    })
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {alunni.length > 0 &&
+        <table>
+          <thead>
+            <tr>
+              <th> ID </th>
+              <th> NOME </th>
+              <th> COGNOME </th>
+            </tr>
+          </thead>
+          <tbody>
+          {
+            alunni.map(alunno => 
+              <tr key={alunno.id}>
+                <td> {alunno.id} </td>
+                <td> {alunno.nome} </td>
+                <td> {alunno.cognome} </td>
+              </tr>
+            )
+          }
+          </tbody>
+        </table>
+      }
+      {loading && <p> Caricamento </p>}
+      <br />
+      {alunni.length == 0 && !loading && <button onClick={carica}> CARICA </button>}
+      {alunni.length > 0 && !inserting && <button onClick={mostraForm}> AGGIUNGI </button>}
+      {inserting && 
+        <div>
+          <div>
+            <label> Nome </label>
+            <input type='text' name='alunnoName' onChange={(e) => setNome(e.target.value)}/> <br/>
+            <label> Cognome </label>
+            <input type='text' name='alunnoSurname' onChange={(e) => setCognome(e.target.value)}/> <br />
+            <button onClick={salvaAlunno}>AGGIUNGI</button>
+            <button onClick={() => setInserting(false)}>ANNULLA</button>
+          </div>
+        </div>}
     </div>
   );
 }

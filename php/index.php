@@ -25,6 +25,9 @@ $app->put("/classi/{classe_id}","ClassiController:update");
 $app->delete("/classi/{classe_id}", "ClassiController:delete");
 
 //!ALUNNI
+
+$app->get("/alunni", "AlunniController:index");
+
 //*Ottengo TUTTI gli alunni della classe con id specificato
 $app->get('/classi/{classe_id}/alunni', "AlunniController:indexByClass");
     
