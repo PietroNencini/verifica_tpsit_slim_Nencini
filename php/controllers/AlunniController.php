@@ -6,6 +6,7 @@ class AlunniController
 {
 
   public function index(Request $request, Response $response,$args) {
+    sleep(3);
     $db = Database::getInstance();
     $result = $db->select("alunni");
     $response->getBody()->write(json_encode($result));
